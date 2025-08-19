@@ -1,0 +1,1 @@
+base64 yourfile.exe | xclip -selection clipboard
